@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="logo.jpg" alt="C2 Logo" style="border-radius: 100%;">
+</p>
+
 [![Python](https://img.shields.io/badge/language-Python%203-blue.svg)](https://www.python.org)
 [![MIT](https://img.shields.io/badge/license-MIT-red.svg)](https://opensource.org/licenses/MIT)
 [![PUREXPLOIT](https://img.shields.io/badge/team-purexploit-blue)](https://github.com/purexploit)
