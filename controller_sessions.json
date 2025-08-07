@@ -1,0 +1,9 @@
+{
+    "agent_68944b31e7c43": {
+        "id": "agent_68944b31e7c43",
+        "status": "registered",
+        "method": "system",
+        "cwd": "/home/administrator/www",
+        "server": "http://gdfi.hrmanager.com.ph/client.php"
+    }
+}
