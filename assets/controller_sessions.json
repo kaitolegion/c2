@@ -5,5 +5,12 @@
         "method": "system",
         "cwd": "/home/administrator/www",
         "server": "http://gdfi.hrmanager.com.ph/client.php"
+    },
+    "agent_68951df04bb71": {
+        "id": "agent_68951df04bb71",
+        "status": "registered",
+        "method": "system",
+        "cwd": "/home/soum5yhol5lo/public_html",
+        "server": "http://lasantanera.com//client.php"
     }
 }

