@@ -18,11 +18,10 @@ sudo cp -r assets "$INSTALL_DIR/"
 sudo cp -r clients "$INSTALL_DIR/"
 sudo cp -r scripts "$INSTALL_DIR/"
 sudo chmod +x "$INSTALL_DIR/assets/c2.py"
-
 # Create launcher script
 LAUNCHER="#!/bin/bash
 cd /usr/local/share/c2
-exec python3 ./assets/c2.py \"\$@\"
+exec python3 assets/c2.py \"\$@\"
 "
 
 if [ -e "$BIN_LINK" ]; then

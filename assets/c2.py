@@ -8,7 +8,7 @@ BLUE = "\033[94m"
 YELLOW = "\033[93m"
 RESET = "\033[0m"
 
-SESSION_FILE = "controller_sessions.json"
+SESSION_FILE = "_sessions.json"
 
 TOOL_NAME = "ph.luffy C2"
 TOOL_VERSION = "1.0"
@@ -90,10 +90,15 @@ def banner():
     print(SILVER + "-" * 40 + RESET)
 
 def load_sessions():
-    if os.path.exists(SESSION_FILE):
-        with open(SESSION_FILE) as f:
+    try:
+        with open(SESSION_FILE, 'r') as f:
             return json.load(f)
-    return {}
+    except json.JSONDecodeError:
+        # File is empty or invalid JSON, return empty dict or list as fallback
+        return {}
+    except FileNotFoundError:
+        # File doesn't exist yet, return empty dict or list
+        return {}
 
 def save_sessions(sessions):
     with open(SESSION_FILE, "w") as f:
