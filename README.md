@@ -1,8 +1,11 @@
 <p align="center">
-  <img src="logo.jpg" alt="C2 Logo" style="border-radius: 100%;">
+  <img src="assets/img/logo.png" alt="C2 Logo" width="200" style="border-radius: 100%;">
+  </br>
+  <label style="color:lime;font-size:25px;font-familty:'menlo',monospace;font-weight:bold;">C2</label>
 </p>
 
 [![Python](https://img.shields.io/badge/language-Python%203-blue.svg)](https://www.python.org)
+[![Bash](https://img.shields.io/badge/language-Bash-blue.svg)](https://www.gnu.org/software/bash/)
 [![MIT](https://img.shields.io/badge/license-MIT-red.svg)](https://opensource.org/licenses/MIT)
 [![PUREXPLOIT](https://img.shields.io/badge/team-purexploit-blue)](https://github.com/purexploit)
 [![version](https://img.shields.io/badge/version-1.0-blue)](https://github.com/purexploit)
@@ -23,7 +26,7 @@ C2 - Command and Control a lightweight tool designed to remote control over targ
 ## Installation
 
 ```sh
-python3 -m pip install requests
+bash installer.sh
 ```
 
 ## Usage
@@ -33,7 +36,7 @@ Upload client.php/short-client.php to any infected server
 
 Server:
 ```sh
-python3 c2.py
+c2
 ```
 
 ## Credits
@@ -41,9 +44,9 @@ python3 c2.py
     <li><a>ChatGPT</a></li>
 </ul>
 
-## Follow
+## Follow me
 <ul>
-    <li><a>Github</a></li>
+    <li><a href="https://github.com/kaitolegion">Github</a></li>
     <li><a>Youtube</a></li>
-    <li><a>Facebook</a></li>
+    <li><a href="https://www.facebook.com/profile.php?id=61579313000725">Facebook</a></li>
 </ul>

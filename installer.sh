@@ -19,7 +19,7 @@ sudo cp -r clients "$INSTALL_DIR/"
 sudo cp -r scripts "$INSTALL_DIR/"
 sudo chmod +x "$INSTALL_DIR/assets/c2.py"
 sudo touch "$INSTALL_DIR/_sessions.json"
-sudo chmod +x "$INSTALL_DIR/_sessions.json"
+sudo chmod 666 "$INSTALL_DIR/_sessions.json"
 # Create launcher script
 LAUNCHER="#!/bin/bash
 cd /usr/local/share/c2
