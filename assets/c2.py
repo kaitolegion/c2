@@ -6,11 +6,11 @@ SILVER = "\033[37m"
 BLUE = "\033[94m"
 RED = "\033[1;31m"
 YELLOW = "\033[93m"
-RESET = "\033[0m"
+RESET = "\033[0m" 
 SESSION_FILE = "_sessions.json"
-TOOL_NAME = "ph.luffy C2"
+TOOL_NAME = "kaitocoding Command and Control c2"
 TOOL_VERSION = "1.0"
-TOOL_AUTHOR = "Coded by ph.luffy"
+TOOL_AUTHOR = "Coded by kaitocoding"
 GITHUB_RAW_URL = "https://raw.githubusercontent.com/kaitolegion/c2/main/assets/c2.py"
 
 def check_for_update():
@@ -70,8 +70,37 @@ def banner():
 
       {GREEN}C2{RESET} : version {YELLOW}1.0{RESET}
       Team: @purexploit
-      Coded by @ph.luffy
+      Coded by @kaitocoding
 {RESET}
+    """)
+    print(SILVER + "-" * 40 + RESET)
+    print(f"{GREEN}[+] Active Sessions:{RESET}")
+    for i, sid in enumerate(sessions.keys(), start=1):
+        server = sessions[sid].get("server", "unknown")
+        print(f"{BLUE}[{i}]{RESET} {sid} - {server}")
+    print(SILVER + "-" * 40 + RESET)
+    print(f"{GREEN}[+] Commands:{RESET} (only when connected)")
+    print(f"{SILVER}[*] spawn shell [name]{RESET} :   {SILVER}Upload your shell (e.g, spawn shell up.php){RESET}")
+    print(f"{SILVER}[*] spawn list{RESET}         :   {SILVER}List of available backdoors{RESET}")
+    print(f"{SILVER}[*] about{RESET}              :   {SILVER}About this tool{RESET}")
+    print(f"{SILVER}[*] clear{RESET}              :   {SILVER}Clear commands{RESET}")
+    print(f"{SILVER}[*] exit{RESET}               :   {SILVER}Back to home{RESET}")
+    print(SILVER + "-" * 40 + RESET)
+    print(f"{GREEN}[+] Commands:{RESET} (not connected)")
+    print(f"{SILVER}[*] n{RESET}                  :   {SILVER}For new target{RESET}")
+    print(f"{SILVER}[*] kill [num]{RESET}         :   {SILVER}Remove session number [num]{RESET}")
+    print(f"{SILVER}[*] update{RESET}             :   {SILVER}Check for updates{RESET}")
+    print(f"{SILVER}[*] CTRL+C{RESET}             :   {SILVER}Exit the program{RESET}")
+    print(SILVER + "-" * 40 + RESET)
+    
+
+def banner2():
+    print(f"""
+
+    ENTER NEW TARGET 
+
+    Coded by ph.luffy <c2
+
     """)
     print(SILVER + "-" * 40 + RESET)
     print(f"{GREEN}[+] Active Sessions:{RESET}")
@@ -111,6 +140,7 @@ def save_sessions(sessions):
 def register(new_server=None):
     while True:
         if new_server is None:
+            banner2()
             new_server = input(f"{BLUE}Enter new target: {RESET}").strip()
         if not new_server:
             print(f"{YELLOW}[!]{RESET} URL cannot be empty. Please enter a valid URL (e.g., http://target/path/client.php)")
@@ -257,7 +287,7 @@ def main():
         print(f"{GREEN}[+]{RESET} session connected: {BLUE}{session['id']}{RESET}")
         while True:
             try:
-                cmd = input(f"{GREEN}px@security({RED}{session['id']}{SILVER})$ {RESET}").strip()
+                cmd = input(f"{GREEN}purexploit@security({RED}{session['id']}{SILVER})$ {RESET}").strip()
             except KeyboardInterrupt:
                 print(f"\n{YELLOW}[!]{RESET} KeyboardInterrupt detected. Exiting.")
                 break
