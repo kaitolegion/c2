@@ -13,7 +13,7 @@
 
 ## C2 (beta) version
 ### Command and Control
-C2 - Command and Control a lightweight tool designed to remote control over target server with persistent communication between the infected target and the attacker’s control server over HTTP/S.
+C2 - Command and Control a lightweight tool designed to remote control over server with persistent communication over HTTP/S.
 
 ## Screenshots
 
