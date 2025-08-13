@@ -70,29 +70,9 @@ def banner():
 
       {GREEN}C2{RESET} : version {YELLOW}1.0{RESET}
       Team: @purexploit
-      Coded by @kaitocoding
-{RESET}
-    """)
-    print(SILVER + "-" * 40 + RESET)
-    print(f"{GREEN}[+] Active Sessions:{RESET}")
-    for i, sid in enumerate(sessions.keys(), start=1):
-        server = sessions[sid].get("server", "unknown")
-        print(f"{BLUE}[{i}]{RESET} {sid} - {server}")
-    print(SILVER + "-" * 40 + RESET)
-    print(f"{GREEN}[+] Commands:{RESET} (only when connected)")
-    print(f"{SILVER}[*] spawn shell [name]{RESET} :   {SILVER}Upload your shell (e.g, spawn shell up.php){RESET}")
-    print(f"{SILVER}[*] spawn list{RESET}         :   {SILVER}List of available backdoors{RESET}")
-    print(f"{SILVER}[*] about{RESET}              :   {SILVER}About this tool{RESET}")
-    print(f"{SILVER}[*] clear{RESET}              :   {SILVER}Clear commands{RESET}")
-    print(f"{SILVER}[*] exit{RESET}               :   {SILVER}Back to home{RESET}")
-    print(SILVER + "-" * 40 + RESET)
-    print(f"{GREEN}[+] Commands:{RESET} (not connected)")
-    print(f"{SILVER}[*] n{RESET}                  :   {SILVER}For new target{RESET}")
-    print(f"{SILVER}[*] kill [num]{RESET}         :   {SILVER}Remove session number [num]{RESET}")
-    print(f"{SILVER}[*] update{RESET}             :   {SILVER}Check for updates{RESET}")
-    print(f"{SILVER}[*] CTRL+C{RESET}             :   {SILVER}Exit the program{RESET}")
-    print(SILVER + "-" * 40 + RESET)
-    
+      Coded by @kaitocoding{RESET}""")
+    menu()
+
 
 def banner2():
     print(f"""
@@ -102,6 +82,9 @@ def banner2():
     Coded by ph.luffy <c2
 
     """)
+    menu()
+
+def menu():
     print(SILVER + "-" * 40 + RESET)
     print(f"{GREEN}[+] Active Sessions:{RESET}")
     for i, sid in enumerate(sessions.keys(), start=1):
