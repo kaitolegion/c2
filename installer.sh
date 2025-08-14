@@ -1,5 +1,9 @@
 #!/bin/bash
-# This is installer of the c2
+#####################################
+#  Installation of C2               #
+#  Coded by Kaito Coding            #
+#  Team: Purexploit                 #
+#####################################
 set -e
 # Color codes
 GREEN="\033[1;32m"
@@ -8,7 +12,7 @@ BLUE="\033[1;34m"
 RED="\033[1;31m"
 RESET="\033[0m"
 
-# Detect if running in Termux
+# Detect if running on Termux
 if [ -n "$PREFIX" ] && [[ "$PREFIX" == *"com.termux"* ]]; then
     # Termux environment
     INSTALL_DIR="$HOME/.local/share/c2"
@@ -16,7 +20,7 @@ if [ -n "$PREFIX" ] && [[ "$PREFIX" == *"com.termux"* ]]; then
     SUDO=""
     PYTHON=python
 else
-    # Standard Linux
+# Running on standard Linux
     INSTALL_DIR="/usr/local/share/c2"
     BIN_LINK="/usr/local/bin/c2"
     SUDO=sudo
@@ -29,14 +33,14 @@ $SUDO mkdir -p "$INSTALL_DIR"
 $SUDO cp -r assets "$INSTALL_DIR/"
 $SUDO cp -r clients "$INSTALL_DIR/"
 $SUDO cp -r scripts "$INSTALL_DIR/"
-$SUDO chmod +x "$INSTALL_DIR/assets/c2.py"
-$SUDO touch "$INSTALL_DIR/_sessions.json"
-$SUDO chmod 666 "$INSTALL_DIR/_sessions.json"
+$SUDO cp main.py "$INSTALL_DIR/"
+$SUDO chmod +x "$INSTALL_DIR/main.py"
+# $SUDO chmod 666 "$INSTALL_DIR/session.json"
 
 # Create launcher script
 LAUNCHER="#!/bin/bash
 cd \"$INSTALL_DIR\"
-$PYTHON assets/c2.py \"\$@\"
+$PYTHON main.py \"\$@\"
 "
 
 if [ -e "$BIN_LINK" ]; then
