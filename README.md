@@ -17,37 +17,6 @@ C2 version 1.1
 ### Command and Control
 C2 - Command and Control a lightweight tool designed to remote control over server with persistent communication over HTTP/S.
 
-## Preview:
-
-```sh
-       ___  __  _____  _____  _____  __   ____  __________
-      / _ \/ / / / _ \/ __/ |/_/ _ \/ /  / __ \/  _/_  __/
-     / ___/ /_/ / , _/ _/_>  </ ___/ /__/ /_/ // /  / /   
-    /_/   \____/_/|_/___/_/|_/_/  /____/\____/___/ /_/    
-                                                      
-
-        C2 : version 1.1
-        Team: @purexploit.Team
-
-      
-[+] Sessions:
-[!] No active sessions found.
-----------------------------------------
-[+] Commands: (only when connected)
-[*] spawn shell [name] :   Upload your shell (e.g, spawn shell up.php)
-[*] spawn list         :   List of available backdoors
-[*] rev [ip] [port]    :   Reverse Shell (netcat)
-[*] clear              :   Clear commands
-[*] exit/quit          :   Back to home
-[+] Commands: (not connected)
-[*] n/new              :   For new target
-[*] kill [num]         :   Remove session number [num]
-[*] about              :   About this tool
-[*] update             :   Check for updates
-[*] clear              :   Clear commands
-[*] CTRL+C             :   Exit the program
-----------------------------------------
-```
 
 ## Requirements:
 • python 3.x </br>
